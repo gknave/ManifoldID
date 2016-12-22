@@ -1,10 +1,6 @@
 # ManifoldID
 Scratch notebook for methods to identify manifolds, particularly within simple glider models.
 
-This is my first foray into github. Pretty exciting!
+Alright, I've now actually included some real code in here. Not much, but some.
 
-Now trying to update from the GitHub Windows desktop app.
-
-**Winning!**
-
-Edit number 2 for test purposes
+*This is untested research code. There will be bugs.*
