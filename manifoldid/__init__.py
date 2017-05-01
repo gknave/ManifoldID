@@ -10,20 +10,10 @@ Created on Mon Mar 20 12:54:40 2017
 import numpy as np
 from numpy.ma import MaskedArray
 import numpy.linalg as LA
-import seaborn as sns
 import matplotlib.pyplot as plt
 from scipy.integrate import ode
 from matplotlib import cm
-import matplotlib
-import os
-matplotlib.rc('xtick', labelsize=22)
-matplotlib.rc('ytick', labelsize=22)
-sns.set_style('ticks')
-
-#os.chdir('C:/Users/Gary/Google Drive/GaryPhDwork/Falling and Gliding/Code')
-#path = 'C:/Users/Gary/Google Drive/GaryPhDwork/Falling and Gliding/Figures/'
-#os.chdir('/media/hdd/GDrive/GaryPhDwork/Falling and Gliding/Code')
-#path = '/media/hdd/GDrive/GaryPhDwork/Falling and Gliding/Figures/'
+from .testfunctions import all
 
 def goodfigure(xlims, ylims, area=130):
   """Creates a new (good) figure
@@ -53,12 +43,20 @@ def goodfigure(xlims, ylims, area=130):
   goodfigure([-2, 2], [-3, 3], area=100) # Returns a figure of figsize=(8, 12)
   
   """
+  from matplotlib.pyplot import figure, gca, xlim, ylim
+  from matplotlib import rc
+  from seaborn import set_style
+  from numpy import sqrt
+  rc('xtick', labelsize=22)
+  rc('ytick', labelsize=22)
+  set_style('ticks')
+
   ar = (ylims[1]-ylims[0])/(xlims[1]-xlims[0])
-  w = np.sqrt(area//ar)//1
-  plt.figure(figsize=(w, ar*w))
-  plt.gca().set_aspect('equal', adjustable='box', anchor='C')
-  plt.xlim(xlims)
-  plt.ylim(ylims)
+  w = sqrt(area//ar)//1
+  figure(figsize=(w, ar*w))
+  gca().set_aspect('equal', adjustable='box', anchor='C')
+  xlim(xlims)
+  ylim(ylims)
 
 def autonomous_odeint(func, y0, *fargs, t0=0, dt=0.01, tf=200, ret_success=False):
   def odefun(t, v):
@@ -531,30 +529,3 @@ def theorem_20(func, xlims, ylims, ds, *fargs, **kwargs):
   #plt.gca().imshow(Am, interpolation='bilinear',
 #                cmap='bone', origin='lower', extent = [xlims[0], xlims[1], ylims[0], ylims[1]])
   return np.ma.np.array(A, mask=mask)
-
-# %% Example Functions
-def kevrekidis(y, eps=0.01):
-  return np.array([-y[0]-y[1]+2, 1/eps*(y[0]**3-y[1])])
-
-def ex11(y):
-  return -np.array([np.tanh(y[0]**2/4)+y[0],y[0]+2*y[1]])
-
-def rotHoop(y, eps=0.1, gamma=2.3):
-  return np.array([y[1], 1/eps*(np.sin(y[0])*(gamma*np.cos(y[0])-1)-y[1])])
-
-# For eps=0.01 a=0.57662277221679688 works nicely
-def vanderPol(y, eps=0.01, a=0.575):
-  return np.array([1/eps*(y[1]-y[0]**3+y[0]), a-y[0]])
-
-def Csquirrel(alpha):
-  return 1, 1.5+2*np.cos(2*alpha)
-def Cplate(alpha):
-  return 1.4-np.cos(2*alpha), 1.2*np.sin(2*alpha)
-def Cball(alpha):
-  return np.array([2, 0])
-
-def GliderAuto(v, theta=-np.pi/18, C=Cplate):
-  #v = [vx, vz]
-  psi = -np.arctan2(v[1], v[0])
-  Yp = [(v[0]**2+v[1]**2)*(C(psi + theta)[1]*np.sin(psi)-C(psi + theta)[0]*np.cos(psi)), (v[0]**2+v[1]**2)*(C(psi + theta)[1]*np.cos(psi)+C(psi + theta)[0]*np.sin(psi))-1]
-  return np.array(Yp)
