@@ -55,18 +55,19 @@ def goodfigure(xlims, ylims, area=130):
   """
   ar = (ylims[1]-ylims[0])/(xlims[1]-xlims[0])
   w = np.sqrt(area//ar)//1
-  plt.figure(figsize=(w, ar*w))
+  plt.figure(figsize=(w+5, ar*w))
   plt.gca().set_aspect('equal', adjustable='box', anchor='C')
   plt.xlim(xlims)
   plt.ylim(ylims)
 
 def autonomous_odeint(func, y0, *fargs, t0=0, dt=0.01, tf=200, ret_success=False):
+  dt = np.abs(dt)*np.sign(tf) 
   def odefun(t, v):
     return func(v, *fargs)
   r = ode(odefun).set_integrator('lsoda', atol=10**(-8), rtol=10**(-8))
   r.set_initial_value(y0, t0)
   Y = []; T = []; Y.append(y0); T.append(t0)
-  while r.successful() and np.abs(r.t/tf) < 1:
+  while r.successful() and r.t/tf < 1:
     r.integrate(r.t+dt)
     Y.append(r.y)
     T.append(r.t)
@@ -117,7 +118,7 @@ def phase_plot(func, xlims, ylims, *fargs, color=(0.5, 0.75, 0.6), paths=True, n
   """
   if newfig:
     goodfigure(xlims, ylims)
-  area = 180
+  area = 240
   ar = (ylims[1]-ylims[0])/(xlims[1]-xlims[0])
   w = np.sqrt(area//ar)//1
   x1 = np.linspace(xlims[0], xlims[1], w+1)
@@ -287,7 +288,7 @@ def peelingOff(func, xlims, ylims, *fargs, flip=False, newfig=False, testlims=[-
       Y0 = [Mid, x0]
     else:
       Y0 = [x0, Mid]
-    T, Y = autonomous_odeint(func, Y0)
+    T, Y = autonomous_odeint(func, Y0, *fargs)
     plt.plot(Y[:, 0], Y[:, 1], color=color, linewidth=3)
 
 
@@ -370,7 +371,7 @@ def repulsion_factor(func, xlims, ylims, ds, T, *fargs, output=False, plot=True,
     for n in range(len(x2)):
       y0 = np.array([X1[n, m], X2[n, m]])
       U[n, m], V[n, m] = func(y0, *fargs)
-      time, Y = autonomous_odeint(func, y0, tf=T, **kwargs)
+      time, Y = autonomous_odeint(func, y0, *fargs, tf=T, **kwargs)
       yOut[:, n, m] = Y[-1, :]
   [DUy, DUx] = np.gradient(yOut[0, :, :], ds, edge_order=2)
   [DVy, DVx] = np.gradient(yOut[1, :, :], ds, edge_order=2)
@@ -392,7 +393,70 @@ def repulsion_factor(func, xlims, ylims, ds, T, *fargs, output=False, plot=True,
   if output:
     return x1, x2, rho
 
-def ftle_field(func, xlims, ylims, ds, T, *fargs, output=False, plot=True, cmap='bone', newfig=True, savefig=False, figname='ftle_field.png', **kwargs):
+def ftle_field(func, xlims, ylims, ds, T, *fargs, dt=0.01, output=False, plot=True, cmap='bone', newfig=True, savefig=False, figname='ftle_field.png', **kwargs):
+  """Calculate the finite-time Lyapunov exponent field
+
+  The finite-time Lyapunov exponent is a measure of the stretching between nearby
+  trajectories in a flow over a finite time [0, T]
+  
+  Parameters
+  ----------
+  func : function
+    A two-dimensional function f([x, y]) which returns [f1, f2]
+  
+  xlims : length 2 list or tuple of floats
+    The x-axis limits of the figure
+  
+  ylims : length 2 list or tuple of floats
+    The y-axis limits of the figure
+
+  ds : float
+    Grid spacing in both directions, assumed to be equal
+
+  T : float
+    Integration time to generate rho_T
+
+  *fargs : arguments to pass to func
+  
+  dt : float
+    The time step passed to autonomous_odeint
+
+  output : boolean, optional, default: False
+    If set to True, returns outputs described below
+
+  plot : boolean, optional, default: True
+
+  cmap : colormap, optional, default: 'bone'
+    Selection of colormap from matplotlib.cmap
+
+  newfig : boolean, optional, default: True
+    Chooses whether phase_plot is plotted in a new figure. To put phase_plot
+    on top of an existing figure, set to False
+
+  savefig : boolean, optional, default: False
+    Chooses whether to save the figure as an image file, named with figname
+    Uses matplotlib.pyplot.savefig
+
+  figname : string, optional, default: 'repulsion_factor.png'
+    If savefig=True is used, specifies the name of the imagefile within the
+    matplotlib.pyplot.savefig command
+
+  Returns
+  -------
+  If plot=True, returns a matplotlib.pyplot.pcolormesh instance
+
+  If output=True, the following variables are returned:
+
+  x1 : 1-dimensional numpy.np.array
+    This represents the points along the x-axis
+
+  x2 : 1-dimensional numpy.np.array
+    This represents the points along the y-axis
+    To generate all points, use numpy.np.meshgrid(x1, x2)
+  
+  ftle : scalar field
+    The finite-time Lyapunov exponent field
+  """
   if plot and newfig:
     goodfigure(xlims, ylims)
   x1 = np.arange(xlims[0], xlims[1]+ds, ds)
@@ -403,7 +467,7 @@ def ftle_field(func, xlims, ylims, ds, T, *fargs, output=False, plot=True, cmap=
   for m in range(len(x1)):
     for n in range(len(x2)):
       y0 = np.array([X1[n, m], X2[n, m]])
-      time, Y = autonomous_odeint(func, y0, tf=T, **kwargs)
+      time, Y = autonomous_odeint(func, y0, *fargs, dt = dt, tf=T, **kwargs)
       yOut[:, n, m] = Y[-1, :]
   [DUy, DUx] = np.gradient(yOut[0, :, :], ds, edge_order=2)
   [DVy, DVx] = np.gradient(yOut[1, :, :], ds, edge_order=2)
@@ -422,8 +486,67 @@ def ftle_field(func, xlims, ylims, ds, T, *fargs, output=False, plot=True, cmap=
   if output:
     return x1, x2, ftle
 
-def repulsion_rate(func, xlims, ylims, ds, *fargs, output=False, masked=False, plot=True, cmap='inferno', newfig=True, savefig=False, figname='localRho.pdf'):
-  """
+def repulsion_rate(func, xlims, ylims, ds, *fargs, output=False, masked=False, plot=True, cmap='coolwarm', newfig=True, savefig=False, figname='localRho.pdf'):
+  """The trajectory-normal repulsion rate
+
+  This function finds the trajectory-normal repulsion rate field introduced by Nave and Ross, 2017.
+  Gives a measure of how much the trajectory passing through x_0 attracts or repels nearby
+  trajectories infinitesimally.
+
+  Parameters
+  ----------
+  func : function
+    A two-dimensional function f([x, y]) which returns [f1, f2]
+  
+  xlims : length 2 list or tuple of floats
+    The x-axis limits of the figure
+  
+  ylims : length 2 list or tuple of floats
+    The y-axis limits of the figure
+
+  ds : float
+    Grid spacing in both directions, assumed to be equal
+
+  *fargs : arguments to pass to func
+  
+  output : boolean, optional, default: False
+    If set to True, returns outputs described below
+
+  plot : boolean, optional, default: True
+
+  cmap : colormap, optional, default: 'bone'
+    Selection of colormap from matplotlib.cmap
+
+  newfig : boolean, optional, default: True
+    Chooses whether phase_plot is plotted in a new figure. To put phase_plot
+    on top of an existing figure, set to False
+
+  savefig : boolean, optional, default: False
+    Chooses whether to save the figure as an image file, named with figname
+    Uses matplotlib.pyplot.savefig
+
+  figname : string, optional, default: 'repulsion_factor.png'
+    If savefig=True is used, specifies the name of the imagefile within the
+    matplotlib.pyplot.savefig command
+
+  Returns
+  -------
+  If plot=True, returns a matplotlib.pyplot.pcolormesh instance
+
+  If output=True, the following variables are returned:
+
+  x1 : 1-dimensional numpy.np.array
+    This represents the points along the x-axis
+
+  x2 : 1-dimensional numpy.np.array
+    This represents the points along the y-axis
+    To generate all points, use numpy.np.meshgrid(x1, x2)
+  
+  rho_dot : scalar field
+    The trajectory-normal repulsion factor given by
+    rho_dot = <n_T, \nabla F^T n_0>
+
+
   """
   if plot and newfig:
     goodfigure(xlims, ylims)
@@ -438,24 +561,27 @@ def repulsion_rate(func, xlims, ylims, ds, *fargs, output=False, masked=False, p
       U[n, m], V[n, m] = func(y0, *fargs)
   [DUy, DUx] = np.gradient(U[:, :], ds, edge_order=2)
   [DVy, DVx] = np.gradient(V[:, :], ds, edge_order=2)
-  A = np.zeros(np.shape(U))
+  rho_dot = np.zeros(np.shape(U))
   J = np.array([[0, 1], [-1, 0]])
   for m in range(len(x1)):
     for n in range(len(x2)):
       Utemp = np.array([U[n, m], V[n, m]])
       Grad = np.array([[DUx[n, m], DUy[n, m]], [DVx[n, m], DVy[n, m]]])
       S = 0.5*(Grad + np.transpose(Grad))
-      A[n, m] = np.dot(Utemp, np.dot(np.dot(np.transpose(J), np.dot(S, J)), Utemp))/np.dot(Utemp, Utemp)
+      rho_dot[n, m] = np.dot(Utemp, np.dot(np.dot(np.transpose(J), np.dot(S, J)), Utemp))/np.dot(Utemp, Utemp)
   if masked:
-    A = MaskedArray(A >= 0, A)
+    rho_dot = MaskedArray(rho_dot >= 0, rho_dot)
   if plot:
-    plt.pcolormesh(X1, X2, A, cmap=cmap)
-    plt.colorbar()
+    lim = np.max(np.abs(rho_dot))
+    ax = plt.gca()
+    mesh = ax.pcolormesh(X1, X2, rho_dot, cmap=cmap, vmin=-3, vmax=3)
+    clb = plt.colorbar(mesh)
+    clb.ax.set_title('$\\dot{\\rho}$', fontsize=28, y=1.02)
     plt.xlim(xlims); plt.ylim(ylims)
     if savefig:
       plt.savefig(figname, transparent=True, bbox_inches='tight')
   if output:
-    return x1, x2, A
+    return x1, x2, rho_dot
 
 def repulsion_ratio_rate(func, xlims, ylims, ds, *fargs, output=False, plot=True, cmap='inferno', newfig=True, savefig=False, figname='localRho.pdf'):
   """
