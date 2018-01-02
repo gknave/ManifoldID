@@ -1,6 +1,8 @@
 """Some example dynamical systems
 
 """
+import numpy as np
+
 def kevrekidis(y, eps=0.01):
   return np.array([-y[0]-y[1]+2, 1/eps*(y[0]**3-y[1])])
 
