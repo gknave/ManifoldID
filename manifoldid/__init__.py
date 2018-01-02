@@ -10,20 +10,10 @@ Created on Mon Mar 20 12:54:40 2017
 import numpy as np
 from numpy.ma import MaskedArray
 import numpy.linalg as LA
-import seaborn as sns
 import matplotlib.pyplot as plt
 from scipy.integrate import ode
 from matplotlib import cm
-import matplotlib
-import os
-matplotlib.rc('xtick', labelsize=22)
-matplotlib.rc('ytick', labelsize=22)
-sns.set_style('ticks')
-
-#os.chdir('C:/Users/Gary/Google Drive/GaryPhDwork/Falling and Gliding/Code')
-#path = 'C:/Users/Gary/Google Drive/GaryPhDwork/Falling and Gliding/Figures/'
-#os.chdir('/media/hdd/GDrive/GaryPhDwork/Falling and Gliding/Code')
-#path = '/media/hdd/GDrive/GaryPhDwork/Falling and Gliding/Figures/'
+from .testfunctions import all
 
 def goodfigure(xlims, ylims, area=130):
   """Creates a new (good) figure
@@ -53,12 +43,20 @@ def goodfigure(xlims, ylims, area=130):
   goodfigure([-2, 2], [-3, 3], area=100) # Returns a figure of figsize=(8, 12)
   
   """
+  from matplotlib.pyplot import figure, gca, xlim, ylim
+  from matplotlib import rc
+  from seaborn import set_style
+  from numpy import sqrt
+  rc('xtick', labelsize=22)
+  rc('ytick', labelsize=22)
+  set_style('ticks')
+
   ar = (ylims[1]-ylims[0])/(xlims[1]-xlims[0])
-  w = np.sqrt(area//ar)//1
-  plt.figure(figsize=(w+5, ar*w))
-  plt.gca().set_aspect('equal', adjustable='box', anchor='C')
-  plt.xlim(xlims)
-  plt.ylim(ylims)
+  w = sqrt(area//ar)//1
+  figure(figsize=(w, ar*w))
+  gca().set_aspect('equal', adjustable='box', anchor='C')
+  xlim(xlims)
+  ylim(ylims)
 
 def autonomous_odeint(func, y0, *fargs, t0=0, dt=0.01, tf=200, ret_success=False):
   dt = np.abs(dt)*np.sign(tf) 
