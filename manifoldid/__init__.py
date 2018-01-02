@@ -13,7 +13,7 @@ import numpy.linalg as LA
 import matplotlib.pyplot as plt
 from scipy.integrate import ode
 from matplotlib import cm
-from .testfunctions import all
+#from .testfunctions import all
 
 def goodfigure(xlims, ylims, area=130):
   """Creates a new (good) figure
