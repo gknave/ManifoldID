@@ -1,14 +1,14 @@
 from setuptools import setup
 setup(name='manifoldid',
-    version='0.1',
+    version='0.1.6',
 	description='Scratch package for methods to identify manifolds, particularly within simple glider models.',
 	url='https://github.com/gknave/ManifoldID',
-	author='Gary Nave'
+	author='Gary Nave',
 	author_email='gknave@vt.edu',
 	packages=['manifoldid'],
 	install_requires=[
 	  'numpy',
 	  'scipy',
-	  'mayavi',
-	]
+	  'matplotlib',
+	  ],
 	zip_safe=False)

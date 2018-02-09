@@ -13,7 +13,7 @@ import numpy.linalg as LA
 import matplotlib.pyplot as plt
 from scipy.integrate import ode
 from matplotlib import cm
-from .testfunctions import all
+#import .testfunctions
 
 def goodfigure(xlims, ylims, area=130):
   """Creates a new (good) figure
@@ -285,9 +285,38 @@ def peelingOff(func, xlims, ylims, *fargs, flip=False, newfig=False, testlims=[-
       Y0 = [Mid, x0]
     else:
       Y0 = [x0, Mid]
-    T, Y = autonomous_odeint(func, Y0)
+    T, Y = autonomous_odeint(func, Y0, *fargs)
     plt.plot(Y[:, 0], Y[:, 1], color=color, linewidth=3)
 
+def curvatureField(func, xlims, ylims, ds, *fargs, plot=True, cmap='PRGn', newfig=True):
+  if plot and newfig:
+    goodfigure(xlims, ylims)
+  x1 = np.arange(xlims[0], xlims[1]+ds, ds)
+  x2 = np.arange(ylims[0], ylims[1]+ds, ds)
+  X1, X2 = np.meshgrid(x1, x2)
+  U = np.zeros(np.shape(X1))
+  V = np.zeros(np.shape(U))
+  for m in range(len(x1)):
+    for n in range(len(x2)):
+      y0 = np.array([X1[n, m], X2[n, m]])
+      U[n, m], V[n, m] = func(y0, *fargs)
+  [DUy, DUx] = np.gradient(U[:, :], ds, edge_order=2)
+  [DVy, DVx] = np.gradient(V[:, :], ds, edge_order=2)
+  kappa = np.zeros(np.shape(U))
+  for m in range(len(x1)):
+    for n in range(len(x2)):
+      Utemp = np.array([U[n, m], V[n, m]])
+      Uhat = np.array([V[n, m], -U[n, m]])
+      Grad = np.array([[DUx[n, m], DUy[n, m]], [DVx[n, m], DVy[n, m]]])
+      kappa[n, m] = np.dot(Uhat, np.dot(Grad, Utemp))/np.dot(Utemp, Utemp)**(1.5)
+  if plot:
+    lim = np.max(np.abs(kappa))
+    ax = plt.gca()
+    mesh = ax.pcolormesh(X1, X2, kappa, cmap=cmap, vmin=-3, vmax=3)
+    clb = plt.colorbar(mesh)
+    clb.ax.set_title('$\\kappa$', fontsize=28, y=1.02)
+    plt.xlim(xlims); plt.ylim(ylims)
+  return x1, x2, kappa
 
 def repulsion_factor(func, xlims, ylims, ds, T, *fargs, output=False, plot=True, cmap='bone', newfig=True, savefig=False, figname='repulsion_factor.png', **kwargs):
   """The trajectory-normal repulsion factor
@@ -368,7 +397,7 @@ def repulsion_factor(func, xlims, ylims, ds, T, *fargs, output=False, plot=True,
     for n in range(len(x2)):
       y0 = np.array([X1[n, m], X2[n, m]])
       U[n, m], V[n, m] = func(y0, *fargs)
-      time, Y = autonomous_odeint(func, y0, tf=T, **kwargs)
+      time, Y = autonomous_odeint(func, y0, *fargs, tf=T, **kwargs)
       yOut[:, n, m] = Y[-1, :]
   [DUy, DUx] = np.gradient(yOut[0, :, :], ds, edge_order=2)
   [DVy, DVx] = np.gradient(yOut[1, :, :], ds, edge_order=2)
@@ -401,7 +430,7 @@ def ftle_field(func, xlims, ylims, ds, T, *fargs, output=False, plot=True, cmap=
   for m in range(len(x1)):
     for n in range(len(x2)):
       y0 = np.array([X1[n, m], X2[n, m]])
-      time, Y = autonomous_odeint(func, y0, tf=T, **kwargs)
+      time, Y = autonomous_odeint(func, y0, *fargs, tf=T, **kwargs)
       yOut[:, n, m] = Y[-1, :]
   [DUy, DUx] = np.gradient(yOut[0, :, :], ds, edge_order=2)
   [DVy, DVx] = np.gradient(yOut[1, :, :], ds, edge_order=2)
