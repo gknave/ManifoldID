@@ -1,6 +1,7 @@
 """Some example dynamical systems
 
 """
+
 from numpy import array, cos, sin, pi, tanh, arctan2
 
 def kevrekidis(y, eps=0.01):
