@@ -59,7 +59,7 @@ def goodfigure(xlims, ylims, area=130):
   ylim(ylims)
 
 def autonomous_odeint(func, y0, *fargs, t0=0, dt=0.01, tf=200, ret_success=False):
-  dt = np.abs(dt)*np.sign(tf) 
+  dt = np.abs(dt)*np.sign(tf)
   def odefun(t, v):
     return func(v, *fargs)
   r = ode(odefun).set_integrator('lsoda', atol=10**(-8), rtol=10**(-8))
@@ -116,7 +116,7 @@ def phase_plot(func, xlims, ylims, *fargs, color=(0.5, 0.75, 0.6), paths=True, n
   """
   if newfig:
     goodfigure(xlims, ylims)
-  area = 240
+  area = 150
   ar = (ylims[1]-ylims[0])/(xlims[1]-xlims[0])
   w = np.sqrt(area//ar)//1
   x1 = np.linspace(xlims[0], xlims[1], w+1)
@@ -197,7 +197,7 @@ def advect_trajectories(func, xlims, ylims, *fargs, color=(0.8, 0.7, 0.5), newfi
       plt.plot(Y[:, 0], Y[:, 1], c=color, linewidth=linewidth)
 
 
-def peelingOff(func, xlims, ylims, *fargs, flip=False, newfig=False, testlims=[-50, 50], color=(0.7, 0.4, 0.1)):
+def peelingOff(func, xlims, ylims, *fargs, flip=False, newfig=False, testlims=[-50, 50], color=(0.7, 0.4, 0.1), linewidth=3):
   """Attracting manifold detection using the method of peeling off
 
   The method of peeling off is a bisection method which integrates a fuction backward in time
@@ -287,7 +287,7 @@ def peelingOff(func, xlims, ylims, *fargs, flip=False, newfig=False, testlims=[-
     else:
       Y0 = [x0, Mid]
     T, Y = autonomous_odeint(func, Y0, *fargs)
-    plt.plot(Y[:, 0], Y[:, 1], color=color, linewidth=3)
+    plt.plot(Y[:, 0], Y[:, 1], color=color, linewidth=linewidth)
 
 def curvatureField(func, xlims, ylims, ds, *fargs, plot=True, cmap='PRGn', newfig=True):
   if plot and newfig:
