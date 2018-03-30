@@ -59,7 +59,7 @@ def goodfigure(xlims, ylims, area=130):
   ylim(ylims)
 
 def autonomous_odeint(func, y0, *fargs, t0=0, dt=0.01, tf=200, ret_success=False):
-  dt = np.abs(dt)*np.sign(tf) 
+  dt = np.abs(dt)*np.sign(tf)
   def odefun(t, v):
     return func(v, *fargs)
   r = ode(odefun).set_integrator('lsoda', atol=10**(-8), rtol=10**(-8))
@@ -116,7 +116,7 @@ def phase_plot(func, xlims, ylims, *fargs, color=(0.5, 0.75, 0.6), paths=True, n
   """
   if newfig:
     goodfigure(xlims, ylims)
-  area = 240
+  area = 150
   ar = (ylims[1]-ylims[0])/(xlims[1]-xlims[0])
   w = np.sqrt(area//ar)//1
   x1 = np.linspace(xlims[0], xlims[1], w+1)
@@ -197,7 +197,7 @@ def advect_trajectories(func, xlims, ylims, *fargs, color=(0.8, 0.7, 0.5), newfi
       plt.plot(Y[:, 0], Y[:, 1], c=color, linewidth=linewidth)
 
 
-def peelingOff(func, xlims, ylims, *fargs, flip=False, newfig=False, testlims=[-50, 50], color=(0.7, 0.4, 0.1)):
+def peelingOff(func, xlims, ylims, *fargs, flip=False, newfig=False, testlims=[-50, 50], color=(0.7, 0.4, 0.1), linewidth=3):
   """Attracting manifold detection using the method of peeling off
 
   The method of peeling off is a bisection method which integrates a fuction backward in time
@@ -287,8 +287,37 @@ def peelingOff(func, xlims, ylims, *fargs, flip=False, newfig=False, testlims=[-
     else:
       Y0 = [x0, Mid]
     T, Y = autonomous_odeint(func, Y0, *fargs)
-    plt.plot(Y[:, 0], Y[:, 1], color=color, linewidth=3)
+    plt.plot(Y[:, 0], Y[:, 1], color=color, linewidth=linewidth)
 
+def curvatureField(func, xlims, ylims, ds, *fargs, plot=True, cmap='PRGn', newfig=True):
+  if plot and newfig:
+    goodfigure(xlims, ylims)
+  x1 = np.arange(xlims[0], xlims[1]+ds, ds)
+  x2 = np.arange(ylims[0], ylims[1]+ds, ds)
+  X1, X2 = np.meshgrid(x1, x2)
+  U = np.zeros(np.shape(X1))
+  V = np.zeros(np.shape(U))
+  for m in range(len(x1)):
+    for n in range(len(x2)):
+      y0 = np.array([X1[n, m], X2[n, m]])
+      U[n, m], V[n, m] = func(y0, *fargs)
+  [DUy, DUx] = np.gradient(U[:, :], ds, edge_order=2)
+  [DVy, DVx] = np.gradient(V[:, :], ds, edge_order=2)
+  kappa = np.zeros(np.shape(U))
+  for m in range(len(x1)):
+    for n in range(len(x2)):
+      Utemp = np.array([U[n, m], V[n, m]])
+      Uhat = np.array([V[n, m], -U[n, m]])
+      Grad = np.array([[DUx[n, m], DUy[n, m]], [DVx[n, m], DVy[n, m]]])
+      kappa[n, m] = np.dot(Uhat, np.dot(Grad, Utemp))/np.dot(Utemp, Utemp)**(1.5)
+  if plot:
+    lim = np.max(np.abs(kappa))
+    ax = plt.gca()
+    mesh = ax.pcolormesh(X1, X2, kappa, cmap=cmap, vmin=-3, vmax=3)
+    clb = plt.colorbar(mesh)
+    clb.ax.set_title('$\\kappa$', fontsize=28, y=1.02)
+    plt.xlim(xlims); plt.ylim(ylims)
+  return x1, x2, kappa
 
 def repulsion_factor(func, xlims, ylims, ds, T, *fargs, output=False, plot=True, cmap='bone', newfig=True, savefig=False, figname='repulsion_factor.png', **kwargs):
   """The trajectory-normal repulsion factor
