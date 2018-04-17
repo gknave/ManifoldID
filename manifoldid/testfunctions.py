@@ -10,8 +10,8 @@ def kevrekidis(y, eps=0.01):
 def ex11(y):
   return -array([tanh(y[0]**2/4)+y[0],y[0]+2*y[1]])
 
-def rotHoop(y, eps=0.1, gamma=2.3):
-  return array([y[1], 1/eps*(sin(y[0])*(gamma*cos(y[0])-1)-y[1])])
+  def rotHoop(y, eps=0.1, gamma=2.3):
+    return array([y[1], 1/eps*(sin(y[0])*(gamma*cos(y[0])-1)-y[1])])
 
 # For eps=0.01 a=0.57662277221679688 works nicely
 def vanderPol(y, eps=0.01, a=0.575):
