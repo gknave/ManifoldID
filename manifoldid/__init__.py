@@ -585,7 +585,7 @@ def ftle_field(func, xlims, ylims, ds, T, *fargs, dt=0.01, output=False, plot=Tr
   if output:
     return x1, x2, ftle
 
-def repulsion_rate(func, xlims, ylims, ds, *fargs, output=False, masked=False, plot=True, cmap='coolwarm', newfig=True, savefig=False, figname='localRho.pdf', vmin=-3, vmax=3):
+def repulsion_rate(func, xlims, ylims, ds, *fargs, output=False, masked=False, plot=True, cmap='coolwarm', newfig=True, savefig=False, figname='localRho.pdf'):
   """The trajectory-normal repulsion rate
 
   This function finds the trajectory-normal repulsion rate field introduced by Nave and Ross, 2017.
@@ -787,109 +787,109 @@ def repulsion_ratio_rate(func, xlims, ylims, ds, *fargs, output=False, plot=True
   if output:
     return x1, x2, A
 
-def acceleration(func, xlims, ylims, ds, *fargs, output=False, masked=False, plot=True, cmap='coolwarm', newfig=True, savefig=False, figname='localRho.pdf', vmin=-3, vmax=3):
-  """The trajectory-normal repulsion rate
+# def acceleration(func, xlims, ylims, ds, *fargs, output=False, masked=False, plot=True, cmap='coolwarm', newfig=True, savefig=False, figname='localRho.pdf', vmin=-3, vmax=3):
+#   """The trajectory-normal repulsion rate
 
-  This function finds the trajectory-normal repulsion rate field introduced by Nave and Ross, 2017.
-  Gives a measure of how much the trajectory passing through x_0 attracts or repels nearby
-  trajectories infinitesimally.
+#   This function finds the trajectory-normal repulsion rate field introduced by Nave and Ross, 2017.
+#   Gives a measure of how much the trajectory passing through x_0 attracts or repels nearby
+#   trajectories infinitesimally.
 
-  Parameters
-  ----------
-  func : function
-    A two-dimensional function f([x, y]) which returns [f1, f2]
+#   Parameters
+#   ----------
+#   func : function
+#     A two-dimensional function f([x, y]) which returns [f1, f2]
   
-  xlims : length 2 list or tuple of floats
-    The x-axis limits of the figure
+#   xlims : length 2 list or tuple of floats
+#     The x-axis limits of the figure
   
-  ylims : length 2 list or tuple of floats
-    The y-axis limits of the figure
+#   ylims : length 2 list or tuple of floats
+#     The y-axis limits of the figure
 
-  ds : float
-    Grid spacing in both directions, assumed to be equal
+#   ds : float
+#     Grid spacing in both directions, assumed to be equal
 
-  *fargs : arguments to pass to func
+#   *fargs : arguments to pass to func
   
-  output : boolean, optional, default: False
-    If set to True, returns outputs described below
+#   output : boolean, optional, default: False
+#     If set to True, returns outputs described below
 
-  plot : boolean, optional, default: True
+#   plot : boolean, optional, default: True
 
-  cmap : colormap, optional, default: 'bone'
-    Selection of colormap from matplotlib.cmap
+#   cmap : colormap, optional, default: 'bone'
+#     Selection of colormap from matplotlib.cmap
 
-  newfig : boolean, optional, default: True
-    Chooses whether phase_plot is plotted in a new figure. To put phase_plot
-    on top of an existing figure, set to False
+#   newfig : boolean, optional, default: True
+#     Chooses whether phase_plot is plotted in a new figure. To put phase_plot
+#     on top of an existing figure, set to False
 
-  savefig : boolean, optional, default: False
-    Chooses whether to save the figure as an image file, named with figname
-    Uses matplotlib.pyplot.savefig
+#   savefig : boolean, optional, default: False
+#     Chooses whether to save the figure as an image file, named with figname
+#     Uses matplotlib.pyplot.savefig
 
-  figname : string, optional, default: 'repulsion_factor.png'
-    If savefig=True is used, specifies the name of the imagefile within the
-    matplotlib.pyplot.savefig command
+#   figname : string, optional, default: 'repulsion_factor.png'
+#     If savefig=True is used, specifies the name of the imagefile within the
+#     matplotlib.pyplot.savefig command
 
-  Returns
-  -------
-  If plot=True, returns a matplotlib.pyplot.pcolormesh instance
+#   Returns
+#   -------
+#   If plot=True, returns a matplotlib.pyplot.pcolormesh instance
 
-  If output=True, the following variables are returned:
+#   If output=True, the following variables are returned:
 
-  x1 : 1-dimensional numpy.np.array
-    This represents the points along the x-axis
+#   x1 : 1-dimensional numpy.np.array
+#     This represents the points along the x-axis
 
-  x2 : 1-dimensional numpy.np.array
-    This represents the points along the y-axis
-    To generate all points, use numpy.np.meshgrid(x1, x2)
+#   x2 : 1-dimensional numpy.np.array
+#     This represents the points along the y-axis
+#     To generate all points, use numpy.np.meshgrid(x1, x2)
   
-  rho_dot : scalar field
-    The trajectory-normal repulsion factor given by
-    rho_dot = <n_T, \nabla F^T n_0>
+#   rho_dot : scalar field
+#     The trajectory-normal repulsion factor given by
+#     rho_dot = <n_T, \nabla F^T n_0>
 
 
-  """
-  if plot and newfig:
-    goodfigure(xlims, ylims)
-  x1 = np.arange(xlims[0], xlims[1]+ds, ds)
-  x2 = np.arange(ylims[0], ylims[1]+ds, ds)
-  X1, X2 = np.meshgrid(x1, x2)
-  U = np.zeros(np.shape(X1))
-  V = np.zeros(np.shape(U))
-  for m in range(len(x1)):
-    for n in range(len(x2)):
-      y0 = np.array([X1[n, m], X2[n, m]])
-      U[n, m], V[n, m] = func(y0, *fargs)
-  [DUy, DUx] = np.gradient(U[:, :], ds, edge_order=2)
-  [DUxy, DUxx] = np.gradient(DUx[:, :], ds, edge_order=2)
-  [DUyy, DUyx] = np.gradient(DUy[:, :], ds, edge_order=2)
-  [DVy, DVx] = np.gradient(V[:, :], ds, edge_order=2)
-  [DVxy, DVxx] = np.gradient(DVx[:, :], ds, edge_order=2)
-  [DVyy, DVyx] = np.gradient(DVy[:, :], ds, edge_order=2)
-  rho_dot = np.zeros(np.shape(U))
-  J = np.array([[0, 1], [-1, 0]])
-  for m in range(len(x1)):
-    for n in range(len(x2)):
-      Utemp = np.array([U[n, m], V[n, m]])
-      Grad = np.array([[DUx[n, m], DUy[n, m]], [DVx[n, m], DVy[n, m]]])
-      ddU = np.array([[DUxx[n, m], DUxy[n, m]], [DUyx[n, m], DUyy[n, m]]])
-      ddV = np.array([[DVxx[n, m], DVxy[n, m]], [DVyx[n, m], DVyy[n, m]]])
-      dA = 
-      S = 0.5*(Grad + np.transpose(Grad))
-      rho_dot[n, m] = np.dot(Utemp, np.dot(np.dot(np.transpose(J), np.dot(S, J)), Utemp))/np.dot(Utemp, Utemp)
-  if masked:
-    rho_dot = MaskedArray(rho_dot >= 0, rho_dot)
-  if plot:
-    lim = np.max(np.abs(rho_dot))
-    ax = plt.gca()
-    mesh = ax.pcolormesh(X1, X2, rho_dot, cmap=cmap, vmin=vmin, vmax=vmax)
-    clb = plt.colorbar(mesh)
-    clb.ax.set_title('$\\dot{\\rho}$', fontsize=28, y=1.02)
-    plt.xlim(xlims); plt.ylim(ylims)
-    if savefig:
-      plt.savefig(figname, transparent=True, bbox_inches='tight')
-  if output:
-    return x1, x2, rho_dot
+#   """
+#   if plot and newfig:
+#     goodfigure(xlims, ylims)
+#   x1 = np.arange(xlims[0], xlims[1]+ds, ds)
+#   x2 = np.arange(ylims[0], ylims[1]+ds, ds)
+#   X1, X2 = np.meshgrid(x1, x2)
+#   U = np.zeros(np.shape(X1))
+#   V = np.zeros(np.shape(U))
+#   for m in range(len(x1)):
+#     for n in range(len(x2)):
+#       y0 = np.array([X1[n, m], X2[n, m]])
+#       U[n, m], V[n, m] = func(y0, *fargs)
+#   [DUy, DUx] = np.gradient(U[:, :], ds, edge_order=2)
+#   [DUxy, DUxx] = np.gradient(DUx[:, :], ds, edge_order=2)
+#   [DUyy, DUyx] = np.gradient(DUy[:, :], ds, edge_order=2)
+#   [DVy, DVx] = np.gradient(V[:, :], ds, edge_order=2)
+#   [DVxy, DVxx] = np.gradient(DVx[:, :], ds, edge_order=2)
+#   [DVyy, DVyx] = np.gradient(DVy[:, :], ds, edge_order=2)
+#   rho_dot = np.zeros(np.shape(U))
+#   J = np.array([[0, 1], [-1, 0]])
+#   for m in range(len(x1)):
+#     for n in range(len(x2)):
+#       Utemp = np.array([U[n, m], V[n, m]])
+#       Grad = np.array([[DUx[n, m], DUy[n, m]], [DVx[n, m], DVy[n, m]]])
+#       ddU = np.array([[DUxx[n, m], DUxy[n, m]], [DUyx[n, m], DUyy[n, m]]])
+#       ddV = np.array([[DVxx[n, m], DVxy[n, m]], [DVyx[n, m], DVyy[n, m]]])
+#       dA = 
+#       S = 0.5*(Grad + np.transpose(Grad))
+#       rho_dot[n, m] = np.dot(Utemp, np.dot(np.dot(np.transpose(J), np.dot(S, J)), Utemp))/np.dot(Utemp, Utemp)
+#   if masked:
+#     rho_dot = MaskedArray(rho_dot >= 0, rho_dot)
+#   if plot:
+#     lim = np.max(np.abs(rho_dot))
+#     ax = plt.gca()
+#     mesh = ax.pcolormesh(X1, X2, rho_dot, cmap=cmap, vmin=vmin, vmax=vmax)
+#     clb = plt.colorbar(mesh)
+#     clb.ax.set_title('$\\dot{\\rho}$', fontsize=28, y=1.02)
+#     plt.xlim(xlims); plt.ylim(ylims)
+#     if savefig:
+#       plt.savefig(figname, transparent=True, bbox_inches='tight')
+#   if output:
+#     return x1, x2, rho_dot
 
 def contour0(func, xlims, ylims, ds, *fargs, **kwargs):
   """The zero contour
