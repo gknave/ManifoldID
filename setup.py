@@ -1,7 +1,7 @@
 from setuptools import setup
 setup(name='manifoldid',
-    version='0.1.9.1',
-	description='Scratch package for methods to identify manifolds, particularly within simple glider models.',
+    version='0.2.1',
+	description='Scratch package for methods to identify manifolds, particularly within two dimensional autonomous systems.',
 	url='https://github.com/gknave/ManifoldID',
 	author='Gary Nave',
 	author_email='gknave@vt.edu',

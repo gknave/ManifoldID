@@ -289,7 +289,7 @@ def peelingOff(func, xlims, ylims, *fargs, flip=False, newfig=False, testlims=[-
     T, Y = autonomous_odeint(func, Y0, *fargs)
     plt.plot(Y[:, 0], Y[:, 1], color=color, linewidth=linewidth)
 
-def s1(func, xlims, ylims, ds, *fargs, output=False, masked=False, plot=True, cmap='coolwarm', newfig=True, savefig=False, figname='localRho.pdf', vmin=-3, vmax=3):
+def s1(func, xlims, ylims, ds, *fargs, output=False, masked=False, plot=True, cmap='coolwarm', newfig=True, savefig=False, figname='localRho.pdf', vmin=None, vmax=None):
   if plot and newfig:
     goodfigure(xlims, ylims)
   x1 = np.arange(xlims[0], xlims[1]+ds, ds)
@@ -314,9 +314,12 @@ def s1(func, xlims, ylims, ds, *fargs, output=False, masked=False, plot=True, cm
   if masked:
     rho_dot = MaskedArray(s1 >= 0, s1)
   if plot:
-    lim = np.max(np.abs(s1))
+    if vmin==vmax:
+      lim = np.max(np.abs(s1))
+      vmin = -lim
+      vmax = lim
     ax = plt.gca()
-    mesh = ax.pcolormesh(X1, X2, s1, cmap=cmap, vmin=-lim, vmax=lim)
+    mesh = ax.pcolormesh(X1, X2, s1, cmap=cmap, vmin=vmin, vmax=vmax)
     clb = plt.colorbar(mesh)
     clb.ax.set_title('$s_1$', fontsize=28, y=1.02)
     plt.xlim(xlims); plt.ylim(ylims)
@@ -325,7 +328,7 @@ def s1(func, xlims, ylims, ds, *fargs, output=False, masked=False, plot=True, cm
   if output:
     return x1, x2, s1
 
-def s2(func, xlims, ylims, ds, *fargs, output=False, masked=False, plot=True, cmap='coolwarm', newfig=True, savefig=False, figname='localRho.pdf', vmin=-3, vmax=3):
+def s2(func, xlims, ylims, ds, *fargs, output=False, masked=False, plot=True, cmap='coolwarm', newfig=True, savefig=False, figname='localRho.pdf', vmin=None, vmax=None):
   if plot and newfig:
     goodfigure(xlims, ylims)
   x1 = np.arange(xlims[0], xlims[1]+ds, ds)
@@ -350,9 +353,12 @@ def s2(func, xlims, ylims, ds, *fargs, output=False, masked=False, plot=True, cm
   if masked:
     rho_dot = MaskedArray(s2 >= 0, s2)
   if plot:
-    lim = np.max(np.abs(s2))
+    if vmin==vmax:
+      lim = np.max(np.abs(s2))
+      vmin = -lim
+      vmax = lim
     ax = plt.gca()
-    mesh = ax.pcolormesh(X1, X2, s2, cmap=cmap, vmin=-lim, vmax=lim)
+    mesh = ax.pcolormesh(X1, X2, s2, cmap=cmap, vmin=vmin, vmax=vmax)
     clb = plt.colorbar(mesh)
     clb.ax.set_title('$s_1$', fontsize=28, y=1.02)
     plt.xlim(xlims); plt.ylim(ylims)
@@ -361,7 +367,7 @@ def s2(func, xlims, ylims, ds, *fargs, output=False, masked=False, plot=True, cm
   if output:
     return x1, x2, s2
 
-def curvatureField(func, xlims, ylims, ds, *fargs, plot=True, cmap='PRGn', newfig=True):
+def curvatureField(func, xlims, ylims, ds, *fargs, plot=True, cmap='PRGn', newfig=True, vmin=None, vmax=None):
   if plot and newfig:
     goodfigure(xlims, ylims)
   x1 = np.arange(xlims[0], xlims[1]+ds, ds)
@@ -383,9 +389,12 @@ def curvatureField(func, xlims, ylims, ds, *fargs, plot=True, cmap='PRGn', newfi
       Grad = np.array([[DUx[n, m], DUy[n, m]], [DVx[n, m], DVy[n, m]]])
       kappa[n, m] = np.dot(Uhat, np.dot(Grad, Utemp))/np.dot(Utemp, Utemp)**(1.5)
   if plot:
-    lim = np.max(np.abs(kappa))
+    if vmin==vmax:
+      lim = np.max(np.abs(kappa))
+      vmin = -lim
+      vmax = lim
     ax = plt.gca()
-    mesh = ax.pcolormesh(X1, X2, kappa, cmap=cmap, vmin=-3, vmax=3)
+    mesh = ax.pcolormesh(X1, X2, kappa, cmap=cmap, vmin=vmin, vmax=vmax)
     clb = plt.colorbar(mesh)
     clb.ax.set_title('$\\kappa$', fontsize=28, y=1.02)
     plt.xlim(xlims); plt.ylim(ylims)
@@ -585,7 +594,7 @@ def ftle_field(func, xlims, ylims, ds, T, *fargs, dt=0.01, output=False, plot=Tr
   if output:
     return x1, x2, ftle
 
-def repulsion_rate(func, xlims, ylims, ds, *fargs, output=False, masked=False, plot=True, cmap='coolwarm', newfig=True, savefig=False, figname='localRho.pdf'):
+def repulsion_rate(func, xlims, ylims, ds, *fargs, output=False, masked=False, plot=True, cmap='coolwarm', newfig=True, savefig=False, figname='localRho.pdf', vmin=None, vmax=None):
   """The trajectory-normal repulsion rate
 
   This function finds the trajectory-normal repulsion rate field introduced by Nave and Ross, 2017.
@@ -671,7 +680,10 @@ def repulsion_rate(func, xlims, ylims, ds, *fargs, output=False, masked=False, p
   if masked:
     rho_dot = MaskedArray(rho_dot >= 0, rho_dot)
   if plot:
-    lim = np.max(np.abs(rho_dot))
+    if vmin==vmax:
+      lim = np.max(np.abs(rho_dot))
+      vmin = -lim
+      vmax = lim
     ax = plt.gca()
     mesh = ax.pcolormesh(X1, X2, rho_dot, cmap=cmap, vmin=vmin, vmax=vmax)
     clb = plt.colorbar(mesh)
@@ -682,7 +694,7 @@ def repulsion_rate(func, xlims, ylims, ds, *fargs, output=False, masked=False, p
   if output:
     return x1, x2, rho_dot
 
-def shearing(func, xlims, ylims, ds, *fargs, output=False, masked=False, plot=True, cmap='coolwarm', newfig=True, savefig=False, figname='localRho.pdf', vmin=-3, vmax=3):
+def shear_rate(func, xlims, ylims, ds, *fargs, output=False, masked=False, plot=True, cmap='coolwarm', newfig=True, savefig=False, figname='localRho.pdf', vmin=None, vmax=None):
   if plot and newfig:
     goodfigure(xlims, ylims)
   x1 = np.arange(xlims[0], xlims[1]+ds, ds)
@@ -696,29 +708,32 @@ def shearing(func, xlims, ylims, ds, *fargs, output=False, masked=False, plot=Tr
       U[n, m], V[n, m] = func(y0, *fargs)
   [DUy, DUx] = np.gradient(U[:, :], ds, edge_order=2)
   [DVy, DVx] = np.gradient(V[:, :], ds, edge_order=2)
-  rho_dot = np.zeros(np.shape(U))
+  q_dot = np.zeros(np.shape(U))
   R = np.array([[0, 1], [-1, 0]])
   for m in range(len(x1)):
     for n in range(len(x2)):
       Utemp = np.array([U[n, m], V[n, m]])
       Grad = np.array([[DUx[n, m], DUy[n, m]], [DVx[n, m], DVy[n, m]]])
       S = 0.5*(Grad + np.transpose(Grad))
-      rho_dot[n, m] = np.dot(Utemp, np.dot(np.dot(S, R) - np.dot(R, S), Utemp))/np.dot(Utemp, Utemp)
+      q_dot[n, m] = np.dot(Utemp, np.dot(np.dot(S, R) - np.dot(R, S), Utemp))/np.dot(Utemp, Utemp)
   if masked:
-    rho_dot = MaskedArray(rho_dot >= 0, rho_dot)
+    q_dot = MaskedArray(q_dot >= 0, q_dot)
   if plot:
-    lim = np.max(np.abs(rho_dot))
+    if vmin==vmax:
+      lim = np.max(np.abs(q_dot))
+      vmin = -lim
+      vmax = lim
     ax = plt.gca()
-    mesh = ax.pcolormesh(X1, X2, rho_dot, cmap=cmap, vmin=vmin, vmax=vmax)
+    mesh = ax.pcolormesh(X1, X2, q_dot, cmap=cmap, vmin=vmin, vmax=vmax)
     clb = plt.colorbar(mesh)
-    clb.ax.set_title('$\\dot{\\rho}$', fontsize=28, y=1.02)
+    clb.ax.set_title('$\\dot{q}$', fontsize=28, y=1.02)
     plt.xlim(xlims); plt.ylim(ylims)
     if savefig:
       plt.savefig(figname, transparent=True, bbox_inches='tight')
   if output:
-    return x1, x2, rho_dot
+    return x1, x2, q_dot
 
-def stretching(func, xlims, ylims, ds, *fargs, output=False, masked=False, plot=True, cmap='coolwarm', newfig=True, savefig=False, figname='localRho.pdf', vmin=-3, vmax=3):
+def stretch_rate(func, xlims, ylims, ds, *fargs, output=False, masked=False, plot=True, cmap='coolwarm', newfig=True, savefig=False, figname='localRho.pdf', vmin=None, vmax=None):
   if plot and newfig:
     goodfigure(xlims, ylims)
   x1 = np.arange(xlims[0], xlims[1]+ds, ds)
@@ -732,29 +747,32 @@ def stretching(func, xlims, ylims, ds, *fargs, output=False, masked=False, plot=
       U[n, m], V[n, m] = func(y0, *fargs)
   [DUy, DUx] = np.gradient(U[:, :], ds, edge_order=2)
   [DVy, DVx] = np.gradient(V[:, :], ds, edge_order=2)
-  rho_dot = np.zeros(np.shape(U))
+  p_dot = np.zeros(np.shape(U))
   R = np.array([[0, 1], [-1, 0]])
   for m in range(len(x1)):
     for n in range(len(x2)):
       Utemp = np.array([U[n, m], V[n, m]])
       Grad = np.array([[DUx[n, m], DUy[n, m]], [DVx[n, m], DVy[n, m]]])
       S = 0.5*(Grad + np.transpose(Grad))
-      rho_dot[n, m] = np.dot(Utemp, np.dot(S, Utemp))/np.dot(Utemp, Utemp)
+      p_dot[n, m] = np.dot(Utemp, np.dot(S, Utemp))/np.dot(Utemp, Utemp)
   if masked:
-    rho_dot = MaskedArray(rho_dot >= 0, rho_dot)
+    p_dot = MaskedArray(p_dot >= 0, p_dot)
   if plot:
-    lim = np.max(np.abs(rho_dot))
+    if vmin==vmax:
+      lim = np.max(np.abs(p_dot))
+      vmin = -lim
+      vmax = lim
     ax = plt.gca()
-    mesh = ax.pcolormesh(X1, X2, rho_dot, cmap=cmap, vmin=vmin, vmax=vmax)
+    mesh = ax.pcolormesh(X1, X2, p_dot, cmap=cmap, vmin=vmin, vmax=vmax)
     clb = plt.colorbar(mesh)
-    clb.ax.set_title('$\\dot{\\rho}$', fontsize=28, y=1.02)
+    clb.ax.set_title('$\\dot{p}$', fontsize=28, y=1.02)
     plt.xlim(xlims); plt.ylim(ylims)
     if savefig:
       plt.savefig(figname, transparent=True, bbox_inches='tight')
   if output:
-    return x1, x2, rho_dot
+    return x1, x2, p_dot
 
-def repulsion_ratio_rate(func, xlims, ylims, ds, *fargs, output=False, plot=True, cmap='inferno', newfig=True, savefig=False, figname='localRho.pdf'):
+def repulsion_ratio_rate(func, xlims, ylims, ds, *fargs, output=False, plot=True, cmap='inferno', newfig=True, savefig=False, figname='localRho.pdf', vmin=None, vmax=None):
   """
   """
   if plot and newfig:
@@ -770,24 +788,28 @@ def repulsion_ratio_rate(func, xlims, ylims, ds, *fargs, output=False, plot=True
       U[n, m], V[n, m] = func(y0, *fargs)
   [DUy, DUx] = np.gradient(U[:, :], ds, edge_order=2)
   [DVy, DVx] = np.gradient(V[:, :], ds, edge_order=2)
-  A = np.zeros(np.shape(U))
+  nu_dot = np.zeros(np.shape(U))
   for m in range(len(x1)):
     for n in range(len(x2)):
       Utemp = np.array([U[n, m], V[n, m]])
       Grad = np.array([[DUx[n, m], DUy[n, m]], [DVx[n, m], DVy[n, m]]])
       S = 0.5*(Grad + np.transpose(Grad))
       Sigma = np.trace(S) - 2*S
-      A[n, m] = np.dot(Utemp, np.dot(Sigma, Utemp))/np.dot(Utemp, Utemp)
+      nu_dot[n, m] = np.dot(Utemp, np.dot(Sigma, Utemp))/np.dot(Utemp, Utemp)
   if plot:
-    plt.pcolormesh(X1, X2, A, cmap=cmap)
+    if vmin==vmax:
+      lim = np.max(np.abs(nu_dot))
+      vmin = -lim
+      vmax = lim
+    plt.pcolormesh(X1, X2, nu_dot, cmap=cmap, vmin=vmin, vmax=vmax)
     plt.colorbar()
     plt.xlim(xlims); plt.ylim(ylims)
     if savefig:
       plt.savefig(figname, transparent=True, bbox_inches='tight')
   if output:
-    return x1, x2, A
+    return x1, x2, nu_dot
 
-# def acceleration(func, xlims, ylims, ds, *fargs, output=False, masked=False, plot=True, cmap='coolwarm', newfig=True, savefig=False, figname='localRho.pdf', vmin=-3, vmax=3):
+# def acceleration(func, xlims, ylims, ds, *fargs, output=False, masked=False, plot=True, cmap='coolwarm', newfig=True, savefig=False, figname='localRho.pdf', vmin=vmin, vmax=vmax):
 #   """The trajectory-normal repulsion rate
 
 #   This function finds the trajectory-normal repulsion rate field introduced by Nave and Ross, 2017.
