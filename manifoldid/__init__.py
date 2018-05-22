@@ -310,7 +310,7 @@ def s1(func, xlims, ylims, ds, *fargs, output=False, masked=False, plot=True, cm
       Grad = np.array([[DUx[n, m], DUy[n, m]], [DVx[n, m], DVy[n, m]]])
       S = 0.5*(Grad + np.transpose(Grad))
       vals= LA.eigvals(S)
-      s1[n, m] = vals[np.argmax(np.abs(vals))]
+      s1[n, m] = vals[np.argmax(vals)]
   if masked:
     rho_dot = MaskedArray(s1 >= 0, s1)
   if plot:
@@ -349,7 +349,7 @@ def s2(func, xlims, ylims, ds, *fargs, output=False, masked=False, plot=True, cm
       Grad = np.array([[DUx[n, m], DUy[n, m]], [DVx[n, m], DVy[n, m]]])
       S = 0.5*(Grad + np.transpose(Grad))
       vals= LA.eigvals(S)
-      s2[n, m] = vals[np.argmin(np.abs(vals))]
+      s2[n, m] = vals[np.argmin(vals)]
   if masked:
     rho_dot = MaskedArray(s2 >= 0, s2)
   if plot:

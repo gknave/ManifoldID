@@ -16,6 +16,9 @@ def rotHoop(y, eps=0.1, gamma=2.3):
 def pendulum(y):
   return np.array([y[1], -np.sin(y[0])])
 
+def verhulst(y, eps=0.01):
+  return [1, 1/eps*(y[0]*y[1]-y[1]**2)]
+
 # For eps=0.01 a=0.57662277221679688 works nicely
 def vanderPol(y, eps=0.01, a=0.575):
   return np.array([1/eps*(y[1]-y[0]**3+y[0]), a-y[0]])
