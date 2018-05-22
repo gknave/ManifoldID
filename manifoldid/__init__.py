@@ -1070,7 +1070,6 @@ def acceleration(func, xlims, ylims, ds, *fargs, output=False, masked=False, plo
       Grad = np.array([[DUx[n, m], DUy[n, m]], [DVx[n, m], DVy[n, m]]])
       ddU = np.array([[DUxx[n, m], DUxy[n, m]], [DUyx[n, m], DUyy[n, m]]])
       ddV = np.array([[DVxx[n, m], DVxy[n, m]], [DVyx[n, m], DVyy[n, m]]])
-      dA = 
       S = 0.5*(Grad + np.transpose(Grad))
       rho_dot[n, m] = np.dot(Utemp, np.dot(np.dot(np.transpose(J), np.dot(S, J)), Utemp))/np.dot(Utemp, Utemp)
   if masked:
