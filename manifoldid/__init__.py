@@ -485,7 +485,7 @@ def peelingOff(func, xlims, ylims, *fargs, flip=False, newfig=False, testlims=[-
     T, Y = autonomous_odeint(func, Y0, *fargs)
     plt.plot(Y[:, 0], Y[:, 1], color=color, linewidth=linewidth)
 
-def s1(func, xlims, ylims, ds, *fargs, output=False, masked=False, plot=True, cmap='coolwarm', newfig=True, savefig=False, figname='localRho.pdf', vmin=-3, vmax=3):
+def s1(func, xlims, ylims, ds, *fargs, output=False, masked=False, plot=True, cmap='coolwarm', newfig=True, savefig=False, figname='localRho.pdf', vmin=None, vmax=None):
   if plot and newfig:
     goodfigure(xlims, ylims)
   x1 = np.arange(xlims[0], xlims[1]+ds, ds)
@@ -506,13 +506,16 @@ def s1(func, xlims, ylims, ds, *fargs, output=False, masked=False, plot=True, cm
       Grad = np.array([[DUx[n, m], DUy[n, m]], [DVx[n, m], DVy[n, m]]])
       S = 0.5*(Grad + np.transpose(Grad))
       vals= LA.eigvals(S)
-      s1[n, m] = vals[np.argmax(np.abs(vals))]
+      s1[n, m] = vals[np.argmax(vals)]
   if masked:
     rho_dot = MaskedArray(s1 >= 0, s1)
   if plot:
-    lim = np.max(np.abs(s1))
+    if vmin==vmax:
+      lim = np.max(np.abs(s1))
+      vmin = -lim
+      vmax = lim
     ax = plt.gca()
-    mesh = ax.pcolormesh(X1, X2, s1, cmap=cmap, vmin=-lim, vmax=lim)
+    mesh = ax.pcolormesh(X1, X2, s1, cmap=cmap, vmin=vmin, vmax=vmax)
     clb = plt.colorbar(mesh)
     clb.ax.set_title('$s_1$', fontsize=28, y=1.02)
     plt.xlim(xlims); plt.ylim(ylims)
@@ -521,7 +524,7 @@ def s1(func, xlims, ylims, ds, *fargs, output=False, masked=False, plot=True, cm
   if output:
     return x1, x2, s1
 
-def s2(func, xlims, ylims, ds, *fargs, output=False, masked=False, plot=True, cmap='coolwarm', newfig=True, savefig=False, figname='localRho.pdf', vmin=-3, vmax=3):
+def s2(func, xlims, ylims, ds, *fargs, output=False, masked=False, plot=True, cmap='coolwarm', newfig=True, savefig=False, figname='localRho.pdf', vmin=None, vmax=None):
   if plot and newfig:
     goodfigure(xlims, ylims)
   x1 = np.arange(xlims[0], xlims[1]+ds, ds)
@@ -542,13 +545,16 @@ def s2(func, xlims, ylims, ds, *fargs, output=False, masked=False, plot=True, cm
       Grad = np.array([[DUx[n, m], DUy[n, m]], [DVx[n, m], DVy[n, m]]])
       S = 0.5*(Grad + np.transpose(Grad))
       vals= LA.eigvals(S)
-      s2[n, m] = vals[np.argmin(np.abs(vals))]
+      s2[n, m] = vals[np.argmin(vals)]
   if masked:
     rho_dot = MaskedArray(s2 >= 0, s2)
   if plot:
-    lim = np.max(np.abs(s2))
+    if vmin==vmax:
+      lim = np.max(np.abs(s2))
+      vmin = -lim
+      vmax = lim
     ax = plt.gca()
-    mesh = ax.pcolormesh(X1, X2, s2, cmap=cmap, vmin=-lim, vmax=lim)
+    mesh = ax.pcolormesh(X1, X2, s2, cmap=cmap, vmin=vmin, vmax=vmax)
     clb = plt.colorbar(mesh)
     clb.ax.set_title('$s_1$', fontsize=28, y=1.02)
     plt.xlim(xlims); plt.ylim(ylims)
@@ -557,7 +563,7 @@ def s2(func, xlims, ylims, ds, *fargs, output=False, masked=False, plot=True, cm
   if output:
     return x1, x2, s2
 
-def curvatureField(func, xlims, ylims, ds, *fargs, plot=True, cmap='PRGn', newfig=True):
+def curvatureField(func, xlims, ylims, ds, *fargs, plot=True, cmap='PRGn', newfig=True, vmin=None, vmax=None):
   if plot and newfig:
     goodfigure(xlims, ylims)
   x1 = np.arange(xlims[0], xlims[1]+ds, ds)
@@ -579,9 +585,12 @@ def curvatureField(func, xlims, ylims, ds, *fargs, plot=True, cmap='PRGn', newfi
       Grad = np.array([[DUx[n, m], DUy[n, m]], [DVx[n, m], DVy[n, m]]])
       kappa[n, m] = np.dot(Uhat, np.dot(Grad, Utemp))/np.dot(Utemp, Utemp)**(1.5)
   if plot:
-    lim = np.max(np.abs(kappa))
+    if vmin==vmax:
+      lim = np.max(np.abs(kappa))
+      vmin = -lim
+      vmax = lim
     ax = plt.gca()
-    mesh = ax.pcolormesh(X1, X2, kappa, cmap=cmap, vmin=-3, vmax=3)
+    mesh = ax.pcolormesh(X1, X2, kappa, cmap=cmap, vmin=vmin, vmax=vmax)
     clb = plt.colorbar(mesh)
     clb.ax.set_title('$\\kappa$', fontsize=28, y=1.02)
     plt.xlim(xlims); plt.ylim(ylims)
@@ -781,7 +790,7 @@ def ftle_field(func, xlims, ylims, ds, T, *fargs, dt=0.01, output=False, plot=Tr
   if output:
     return x1, x2, ftle
 
-def repulsion_rate(func, xlims, ylims, ds, *fargs, output=False, masked=False, plot=True, cmap='coolwarm', newfig=True, savefig=False, figname='localRho.pdf', vmin=-3, vmax=3):
+def repulsion_rate(func, xlims, ylims, ds, *fargs, output=False, masked=False, plot=True, cmap='coolwarm', newfig=True, savefig=False, figname='localRho.pdf', vmin=None, vmax=None):
   """The trajectory-normal repulsion rate
 
   This function finds the trajectory-normal repulsion rate field introduced by Nave and Ross, 2017.
@@ -867,7 +876,10 @@ def repulsion_rate(func, xlims, ylims, ds, *fargs, output=False, masked=False, p
   if masked:
     rho_dot = MaskedArray(rho_dot >= 0, rho_dot)
   if plot:
-    lim = np.max(np.abs(rho_dot))
+    if vmin==vmax:
+      lim = np.max(np.abs(rho_dot))
+      vmin = -lim
+      vmax = lim
     ax = plt.gca()
     mesh = ax.pcolormesh(X1, X2, rho_dot, cmap=cmap, vmin=vmin, vmax=vmax)
     clb = plt.colorbar(mesh)
@@ -878,7 +890,7 @@ def repulsion_rate(func, xlims, ylims, ds, *fargs, output=False, masked=False, p
   if output:
     return x1, x2, rho_dot
 
-def shearing(func, xlims, ylims, ds, *fargs, output=False, masked=False, plot=True, cmap='coolwarm', newfig=True, savefig=False, figname='localRho.pdf', vmin=-3, vmax=3):
+def shear_rate(func, xlims, ylims, ds, *fargs, output=False, masked=False, plot=True, cmap='coolwarm', newfig=True, savefig=False, figname='localRho.pdf', vmin=None, vmax=None):
   if plot and newfig:
     goodfigure(xlims, ylims)
   x1 = np.arange(xlims[0], xlims[1]+ds, ds)
@@ -892,29 +904,32 @@ def shearing(func, xlims, ylims, ds, *fargs, output=False, masked=False, plot=Tr
       U[n, m], V[n, m] = func(y0, *fargs)
   [DUy, DUx] = np.gradient(U[:, :], ds, edge_order=2)
   [DVy, DVx] = np.gradient(V[:, :], ds, edge_order=2)
-  rho_dot = np.zeros(np.shape(U))
+  q_dot = np.zeros(np.shape(U))
   R = np.array([[0, 1], [-1, 0]])
   for m in range(len(x1)):
     for n in range(len(x2)):
       Utemp = np.array([U[n, m], V[n, m]])
       Grad = np.array([[DUx[n, m], DUy[n, m]], [DVx[n, m], DVy[n, m]]])
       S = 0.5*(Grad + np.transpose(Grad))
-      rho_dot[n, m] = np.dot(Utemp, np.dot(np.dot(S, R) - np.dot(R, S), Utemp))/np.dot(Utemp, Utemp)
+      q_dot[n, m] = np.dot(Utemp, np.dot(np.dot(S, R) - np.dot(R, S), Utemp))/np.dot(Utemp, Utemp)
   if masked:
-    rho_dot = MaskedArray(rho_dot >= 0, rho_dot)
+    q_dot = MaskedArray(q_dot >= 0, q_dot)
   if plot:
-    lim = np.max(np.abs(rho_dot))
+    if vmin==vmax:
+      lim = np.max(np.abs(q_dot))
+      vmin = -lim
+      vmax = lim
     ax = plt.gca()
-    mesh = ax.pcolormesh(X1, X2, rho_dot, cmap=cmap, vmin=vmin, vmax=vmax)
+    mesh = ax.pcolormesh(X1, X2, q_dot, cmap=cmap, vmin=vmin, vmax=vmax)
     clb = plt.colorbar(mesh)
-    clb.ax.set_title('$\\dot{\\rho}$', fontsize=28, y=1.02)
+    clb.ax.set_title('$\\dot{q}$', fontsize=28, y=1.02)
     plt.xlim(xlims); plt.ylim(ylims)
     if savefig:
       plt.savefig(figname, transparent=True, bbox_inches='tight')
   if output:
-    return x1, x2, rho_dot
+    return x1, x2, q_dot
 
-def stretching(func, xlims, ylims, ds, *fargs, output=False, masked=False, plot=True, cmap='coolwarm', newfig=True, savefig=False, figname='localRho.pdf', vmin=-3, vmax=3):
+def stretch_rate(func, xlims, ylims, ds, *fargs, output=False, masked=False, plot=True, cmap='coolwarm', newfig=True, savefig=False, figname='localRho.pdf', vmin=None, vmax=None):
   if plot and newfig:
     goodfigure(xlims, ylims)
   x1 = np.arange(xlims[0], xlims[1]+ds, ds)
@@ -928,29 +943,32 @@ def stretching(func, xlims, ylims, ds, *fargs, output=False, masked=False, plot=
       U[n, m], V[n, m] = func(y0, *fargs)
   [DUy, DUx] = np.gradient(U[:, :], ds, edge_order=2)
   [DVy, DVx] = np.gradient(V[:, :], ds, edge_order=2)
-  rho_dot = np.zeros(np.shape(U))
+  p_dot = np.zeros(np.shape(U))
   R = np.array([[0, 1], [-1, 0]])
   for m in range(len(x1)):
     for n in range(len(x2)):
       Utemp = np.array([U[n, m], V[n, m]])
       Grad = np.array([[DUx[n, m], DUy[n, m]], [DVx[n, m], DVy[n, m]]])
       S = 0.5*(Grad + np.transpose(Grad))
-      rho_dot[n, m] = np.dot(Utemp, np.dot(S, Utemp))/np.dot(Utemp, Utemp)
+      p_dot[n, m] = np.dot(Utemp, np.dot(S, Utemp))/np.dot(Utemp, Utemp)
   if masked:
-    rho_dot = MaskedArray(rho_dot >= 0, rho_dot)
+    p_dot = MaskedArray(p_dot >= 0, p_dot)
   if plot:
-    lim = np.max(np.abs(rho_dot))
+    if vmin==vmax:
+      lim = np.max(np.abs(p_dot))
+      vmin = -lim
+      vmax = lim
     ax = plt.gca()
-    mesh = ax.pcolormesh(X1, X2, rho_dot, cmap=cmap, vmin=vmin, vmax=vmax)
+    mesh = ax.pcolormesh(X1, X2, p_dot, cmap=cmap, vmin=vmin, vmax=vmax)
     clb = plt.colorbar(mesh)
-    clb.ax.set_title('$\\dot{\\rho}$', fontsize=28, y=1.02)
+    clb.ax.set_title('$\\dot{p}$', fontsize=28, y=1.02)
     plt.xlim(xlims); plt.ylim(ylims)
     if savefig:
       plt.savefig(figname, transparent=True, bbox_inches='tight')
   if output:
-    return x1, x2, rho_dot
+    return x1, x2, p_dot
 
-def repulsion_ratio_rate(func, xlims, ylims, ds, *fargs, output=False, plot=True, cmap='inferno', newfig=True, savefig=False, figname='localRho.pdf'):
+def repulsion_ratio_rate(func, xlims, ylims, ds, *fargs, output=False, plot=True, cmap='inferno', newfig=True, savefig=False, figname='localRho.pdf', vmin=None, vmax=None):
   """
   """
   if plot and newfig:
@@ -966,125 +984,130 @@ def repulsion_ratio_rate(func, xlims, ylims, ds, *fargs, output=False, plot=True
       U[n, m], V[n, m] = func(y0, *fargs)
   [DUy, DUx] = np.gradient(U[:, :], ds, edge_order=2)
   [DVy, DVx] = np.gradient(V[:, :], ds, edge_order=2)
-  A = np.zeros(np.shape(U))
+  nu_dot = np.zeros(np.shape(U))
   for m in range(len(x1)):
     for n in range(len(x2)):
       Utemp = np.array([U[n, m], V[n, m]])
       Grad = np.array([[DUx[n, m], DUy[n, m]], [DVx[n, m], DVy[n, m]]])
       S = 0.5*(Grad + np.transpose(Grad))
       Sigma = np.trace(S) - 2*S
-      A[n, m] = np.dot(Utemp, np.dot(Sigma, Utemp))/np.dot(Utemp, Utemp)
+      nu_dot[n, m] = np.dot(Utemp, np.dot(Sigma, Utemp))/np.dot(Utemp, Utemp)
   if plot:
-    plt.pcolormesh(X1, X2, A, cmap=cmap)
+    if vmin==vmax:
+      lim = np.max(np.abs(nu_dot))
+      vmin = -lim
+      vmax = lim
+    plt.pcolormesh(X1, X2, nu_dot, cmap=cmap, vmin=vmin, vmax=vmax)
     plt.colorbar()
     plt.xlim(xlims); plt.ylim(ylims)
     if savefig:
       plt.savefig(figname, transparent=True, bbox_inches='tight')
   if output:
-    return x1, x2, A
+    return x1, x2, nu_dot
 
-def acceleration(func, xlims, ylims, ds, *fargs, output=False, masked=False, plot=True, cmap='coolwarm', newfig=True, savefig=False, figname='localRho.pdf', vmin=-3, vmax=3):
-  """The trajectory-normal repulsion rate
+# def acceleration(func, xlims, ylims, ds, *fargs, output=False, masked=False, plot=True, cmap='coolwarm', newfig=True, savefig=False, figname='localRho.pdf', vmin=vmin, vmax=vmax):
+#   """The trajectory-normal repulsion rate
 
-  This function finds the trajectory-normal repulsion rate field introduced by Nave and Ross, 2017.
-  Gives a measure of how much the trajectory passing through x_0 attracts or repels nearby
-  trajectories infinitesimally.
+#   This function finds the trajectory-normal repulsion rate field introduced by Nave and Ross, 2017.
+#   Gives a measure of how much the trajectory passing through x_0 attracts or repels nearby
+#   trajectories infinitesimally.
 
-  Parameters
-  ----------
-  func : function
-    A two-dimensional function f([x, y]) which returns [f1, f2]
+#   Parameters
+#   ----------
+#   func : function
+#     A two-dimensional function f([x, y]) which returns [f1, f2]
   
-  xlims : length 2 list or tuple of floats
-    The x-axis limits of the figure
+#   xlims : length 2 list or tuple of floats
+#     The x-axis limits of the figure
   
-  ylims : length 2 list or tuple of floats
-    The y-axis limits of the figure
+#   ylims : length 2 list or tuple of floats
+#     The y-axis limits of the figure
 
-  ds : float
-    Grid spacing in both directions, assumed to be equal
+#   ds : float
+#     Grid spacing in both directions, assumed to be equal
 
-  *fargs : arguments to pass to func
+#   *fargs : arguments to pass to func
   
-  output : boolean, optional, default: False
-    If set to True, returns outputs described below
+#   output : boolean, optional, default: False
+#     If set to True, returns outputs described below
 
-  plot : boolean, optional, default: True
+#   plot : boolean, optional, default: True
 
-  cmap : colormap, optional, default: 'bone'
-    Selection of colormap from matplotlib.cmap
+#   cmap : colormap, optional, default: 'bone'
+#     Selection of colormap from matplotlib.cmap
 
-  newfig : boolean, optional, default: True
-    Chooses whether phase_plot is plotted in a new figure. To put phase_plot
-    on top of an existing figure, set to False
+#   newfig : boolean, optional, default: True
+#     Chooses whether phase_plot is plotted in a new figure. To put phase_plot
+#     on top of an existing figure, set to False
 
-  savefig : boolean, optional, default: False
-    Chooses whether to save the figure as an image file, named with figname
-    Uses matplotlib.pyplot.savefig
+#   savefig : boolean, optional, default: False
+#     Chooses whether to save the figure as an image file, named with figname
+#     Uses matplotlib.pyplot.savefig
 
-  figname : string, optional, default: 'repulsion_factor.png'
-    If savefig=True is used, specifies the name of the imagefile within the
-    matplotlib.pyplot.savefig command
+#   figname : string, optional, default: 'repulsion_factor.png'
+#     If savefig=True is used, specifies the name of the imagefile within the
+#     matplotlib.pyplot.savefig command
 
-  Returns
-  -------
-  If plot=True, returns a matplotlib.pyplot.pcolormesh instance
+#   Returns
+#   -------
+#   If plot=True, returns a matplotlib.pyplot.pcolormesh instance
 
-  If output=True, the following variables are returned:
+#   If output=True, the following variables are returned:
 
-  x1 : 1-dimensional numpy.np.array
-    This represents the points along the x-axis
+#   x1 : 1-dimensional numpy.np.array
+#     This represents the points along the x-axis
 
-  x2 : 1-dimensional numpy.np.array
-    This represents the points along the y-axis
-    To generate all points, use numpy.np.meshgrid(x1, x2)
+#   x2 : 1-dimensional numpy.np.array
+#     This represents the points along the y-axis
+#     To generate all points, use numpy.np.meshgrid(x1, x2)
   
-  rho_dot : scalar field
-    The trajectory-normal repulsion factor given by
-    rho_dot = <n_T, \nabla F^T n_0>
+#   rho_dot : scalar field
+#     The trajectory-normal repulsion factor given by
+#     rho_dot = <n_T, \nabla F^T n_0>
 
 
-  """
-  if plot and newfig:
-    goodfigure(xlims, ylims)
-  x1 = np.arange(xlims[0], xlims[1]+ds, ds)
-  x2 = np.arange(ylims[0], ylims[1]+ds, ds)
-  X1, X2 = np.meshgrid(x1, x2)
-  U = np.zeros(np.shape(X1))
-  V = np.zeros(np.shape(U))
-  for m in range(len(x1)):
-    for n in range(len(x2)):
-      y0 = np.array([X1[n, m], X2[n, m]])
-      U[n, m], V[n, m] = func(y0, *fargs)
-  [DUy, DUx] = np.gradient(U[:, :], ds, edge_order=2)
-  [DUxy, DUxx] = np.gradient(DUx[:, :], ds, edge_order=2)
-  [DUyy, DUyx] = np.gradient(DUy[:, :], ds, edge_order=2)
-  [DVy, DVx] = np.gradient(V[:, :], ds, edge_order=2)
-  [DVxy, DVxx] = np.gradient(DVx[:, :], ds, edge_order=2)
-  [DVyy, DVyx] = np.gradient(DVy[:, :], ds, edge_order=2)
-  rho_dot = np.zeros(np.shape(U))
-  J = np.array([[0, 1], [-1, 0]])
-  for m in range(len(x1)):
-    for n in range(len(x2)):
-      Utemp = np.array([U[n, m], V[n, m]])
-      Grad = np.array([[DUx[n, m], DUy[n, m]], [DVx[n, m], DVy[n, m]]])
-      ddU = np.array([[DUxx[n, m], DUxy[n, m]], [DUyx[n, m], DUyy[n, m]]])
-      ddV = np.array([[DVxx[n, m], DVxy[n, m]], [DVyx[n, m], DVyy[n, m]]])
-      S = 0.5*(Grad + np.transpose(Grad))
-      rho_dot[n, m] = np.dot(Utemp, np.dot(np.dot(np.transpose(J), np.dot(S, J)), Utemp))/np.dot(Utemp, Utemp)
-  if masked:
-    rho_dot = MaskedArray(rho_dot >= 0, rho_dot)
-  if plot:
-    lim = np.max(np.abs(rho_dot))
-    ax = plt.gca()
-    mesh = ax.pcolormesh(X1, X2, rho_dot, cmap=cmap, vmin=vmin, vmax=vmax)
-    clb = plt.colorbar(mesh)
-    clb.ax.set_title('$\\dot{\\rho}$', fontsize=28, y=1.02)
-    plt.xlim(xlims); plt.ylim(ylims)
-    if savefig:
-      plt.savefig(figname, transparent=True, bbox_inches='tight')
-  if output:
-    return x1, x2, rho_dot
+#   """
+#   if plot and newfig:
+#     goodfigure(xlims, ylims)
+#   x1 = np.arange(xlims[0], xlims[1]+ds, ds)
+#   x2 = np.arange(ylims[0], ylims[1]+ds, ds)
+#   X1, X2 = np.meshgrid(x1, x2)
+#   U = np.zeros(np.shape(X1))
+#   V = np.zeros(np.shape(U))
+#   for m in range(len(x1)):
+#     for n in range(len(x2)):
+#       y0 = np.array([X1[n, m], X2[n, m]])
+#       U[n, m], V[n, m] = func(y0, *fargs)
+#   [DUy, DUx] = np.gradient(U[:, :], ds, edge_order=2)
+#   [DUxy, DUxx] = np.gradient(DUx[:, :], ds, edge_order=2)
+#   [DUyy, DUyx] = np.gradient(DUy[:, :], ds, edge_order=2)
+#   [DVy, DVx] = np.gradient(V[:, :], ds, edge_order=2)
+#   [DVxy, DVxx] = np.gradient(DVx[:, :], ds, edge_order=2)
+#   [DVyy, DVyx] = np.gradient(DVy[:, :], ds, edge_order=2)
+#   rho_dot = np.zeros(np.shape(U))
+#   J = np.array([[0, 1], [-1, 0]])
+#   for m in range(len(x1)):
+#     for n in range(len(x2)):
+#       Utemp = np.array([U[n, m], V[n, m]])
+#       Grad = np.array([[DUx[n, m], DUy[n, m]], [DVx[n, m], DVy[n, m]]])
+#       ddU = np.array([[DUxx[n, m], DUxy[n, m]], [DUyx[n, m], DUyy[n, m]]])
+#       ddV = np.array([[DVxx[n, m], DVxy[n, m]], [DVyx[n, m], DVyy[n, m]]])
+#       dA = 
+#       S = 0.5*(Grad + np.transpose(Grad))
+#       rho_dot[n, m] = np.dot(Utemp, np.dot(np.dot(np.transpose(J), np.dot(S, J)), Utemp))/np.dot(Utemp, Utemp)
+#   if masked:
+#     rho_dot = MaskedArray(rho_dot >= 0, rho_dot)
+#   if plot:
+#     lim = np.max(np.abs(rho_dot))
+#     ax = plt.gca()
+#     mesh = ax.pcolormesh(X1, X2, rho_dot, cmap=cmap, vmin=vmin, vmax=vmax)
+#     clb = plt.colorbar(mesh)
+#     clb.ax.set_title('$\\dot{\\rho}$', fontsize=28, y=1.02)
+#     plt.xlim(xlims); plt.ylim(ylims)
+#     if savefig:
+#       plt.savefig(figname, transparent=True, bbox_inches='tight')
+#   if output:
+#     return x1, x2, rho_dot
 
 def contour0(func, xlims, ylims, ds, *fargs, **kwargs):
   """The zero contour
