@@ -596,7 +596,7 @@ def curvatureField(func, xlims, ylims, ds, *fargs, plot=True, cmap='PRGn', newfi
     plt.xlim(xlims); plt.ylim(ylims)
   return x1, x2, kappa
 
-def repulsion_factor(func, xlims, ylims, ds, T, *fargs, output=False, plot=True, cmap='bone', newfig=True, savefig=False, figname='repulsion_factor.png', **kwargs):
+def repulsion_rate(func, xlims, ylims, ds, T, *fargs, output=False, plot=True, cmap='bone', newfig=True, savefig=False, figname='repulsion_factor.png', **kwargs):
   """The trajectory-normal repulsion factor
 
   This function finds the trajectory-normal repulsion factor field introduced by Haller, 2011 
@@ -790,7 +790,7 @@ def ftle_field(func, xlims, ylims, ds, T, *fargs, dt=0.01, output=False, plot=Tr
   if output:
     return x1, x2, ftle
 
-def repulsion_rate(func, xlims, ylims, ds, *fargs, output=False, masked=False, plot=True, cmap='coolwarm', newfig=True, savefig=False, figname='localRho.pdf', vmin=None, vmax=None):
+def divergence_rate(func, xlims, ylims, ds, *fargs, output=False, masked=False, plot=True, cmap='coolwarm', newfig=True, savefig=False, figname='localRho.pdf', vmin=None, vmax=None):
   """The trajectory-normal repulsion rate
 
   This function finds the trajectory-normal repulsion rate field introduced by Nave and Ross, 2017.
@@ -968,7 +968,7 @@ def stretch_rate(func, xlims, ylims, ds, *fargs, output=False, masked=False, plo
   if output:
     return x1, x2, p_dot
 
-def repulsion_ratio_rate(func, xlims, ylims, ds, *fargs, output=False, plot=True, cmap='inferno', newfig=True, savefig=False, figname='localRho.pdf', vmin=None, vmax=None):
+def divergence_ratio(func, xlims, ylims, ds, output=False, plot=True, cmap='inferno', newfig=True, savefig=False, figname='localRho.pdf', vmin=None, vmax=None):
   """
   """
   if plot and newfig:
@@ -981,7 +981,7 @@ def repulsion_ratio_rate(func, xlims, ylims, ds, *fargs, output=False, plot=True
   for m in range(len(x1)):
     for n in range(len(x2)):
       y0 = np.array([X1[n, m], X2[n, m]])
-      U[n, m], V[n, m] = func(y0, *fargs)
+      U[n, m], V[n, m] = func(y0)
   [DUy, DUx] = np.gradient(U[:, :], ds, edge_order=2)
   [DVy, DVx] = np.gradient(V[:, :], ds, edge_order=2)
   nu_dot = np.zeros(np.shape(U))
@@ -990,7 +990,7 @@ def repulsion_ratio_rate(func, xlims, ylims, ds, *fargs, output=False, plot=True
       Utemp = np.array([U[n, m], V[n, m]])
       Grad = np.array([[DUx[n, m], DUy[n, m]], [DVx[n, m], DVy[n, m]]])
       S = 0.5*(Grad + np.transpose(Grad))
-      Sigma = np.trace(S) - 2*S
+      Sigma = np.trace(S)*np.eye(2) - 2*S
       nu_dot[n, m] = np.dot(Utemp, np.dot(Sigma, Utemp))/np.dot(Utemp, Utemp)
   if plot:
     if vmin==vmax:
