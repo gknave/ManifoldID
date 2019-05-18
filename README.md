@@ -7,7 +7,7 @@ This Python package provides various methods for finding influential manifolds i
  - The trajectory-normal repulsion rate, as introduced in [Haller (2010), Section 9](http://georgehaller.com/reprints/variLCS.pdf)
 
 ## Example Code
-The code operates on functions that take in a two-dimensional vector <img src="https://latex.codecogs.com/svg.latex?s=y" /> and return a two-dimensional vector <img src="https://latex.codecogs.com/svg.latex?s=\dot{y}" />.
+The code operates on functions that take in a two-dimensional vector <img src="https://latex.codecogs.com/svg.latex?y" /> and return a two-dimensional vector <img src="https://latex.codecogs.com/svg.latex?\dot{y}" />.
 
     def myFunction(y):
         ydot = <something>
@@ -25,7 +25,7 @@ Next, we can plot, for instance, the phase portrait using `phase_plot`
 ## Installation
 `manifoldid` will soon be available on `pip`, but for now, you need to clone the github repository and run the setup.py file.
 
-    git clone https://github.com/gknave/manifoldid.git
+    git clone https://github.com/gknave/ManifoldID.git
     cd manifoldid
     python setup.py install
 
