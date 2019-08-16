@@ -75,6 +75,8 @@ def autonomous_odeint(func, y0, *fargs, t0=0, dt=0.01, tf=200, ret_success=False
   if ret_success:
     return T, Y, r.successful()
   return np.array(T), np.array(Y)
+
+
 def s1(func, xlims, ylims, ds, *fargs, output=False, masked=False, plot=True, cmap='coolwarm', newfig=True, savefig=False, figname='localRho.pdf', vmin=-3, vmax=3):
   """The trajectory-normal repulsion rate
 
@@ -171,6 +173,7 @@ def s1(func, xlims, ylims, ds, *fargs, output=False, masked=False, plot=True, cm
       plt.savefig(figname, transparent=True, bbox_inches='tight')
   if output:
     return x1, x2, s1
+
 
 def s2(func, xlims, ylims, ds, *fargs, output=False, masked=False, plot=True, cmap='coolwarm', newfig=True, savefig=False, figname='localRho.pdf', vmin=-3, vmax=3):
   """The trajectory-normal repulsion rate
