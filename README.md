@@ -20,6 +20,7 @@ Next, we can plot, for instance, the phase portrait using `phase_plot`
     import manifoldid as mid
     def duffing(y)
         ydot = [y[1] ,y[0]-y[0]**3]
+        return ydot
     xlims = [-1.5, 1.5]
     ylims = [-1, 1]
     mid.phase_plot(duffing, xlims, ylims)
